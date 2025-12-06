@@ -11,6 +11,7 @@ class Currency(Enum):
     JPY = "JPY"
     CAD = "CAD"
     GBP = "GBP"
+    UZS = "UZS"
 
     def get_localized_symbol(self):
         return get_text(Language.EN, BotEntity.COMMON, f"{self.value.lower()}_symbol")
