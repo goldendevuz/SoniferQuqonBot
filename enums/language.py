@@ -8,6 +8,10 @@ class Language(str, Enum):
     IT = "it"
     ZH = "zh"
     UZ = "uz"
+    AR = "ar"
+    ES = "es"
+    JA = "ja"
+    RU = "ru"
 
     @staticmethod
     def from_locale(locale: str) -> 'Language':
