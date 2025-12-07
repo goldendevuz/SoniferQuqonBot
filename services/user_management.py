@@ -1,3 +1,4 @@
+from decimal import Decimal
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -87,12 +88,12 @@ class UserManagementService:
             await NotificationService.edit_reply_markup(message.bot, state_data['chat_id'], state_data['msg_id'])
             user = await UserRepository.get_user_entity(state_data['user_entity'].replace("@", ""), session)
             operation = UserManagementOperation(int(state_data['operation']))
-            amount = float(message.text)
+            amount = Decimal(message.text)
             assert (amount > 0)
             if user is None:
                 msg = get_text(language, BotEntity.ADMIN, "credit_management_user_not_found")
             elif operation == UserManagementOperation.ADD_BALANCE:
-                user.top_up_amount += float(message.text)
+                user.top_up_amount += Decimal(message.text)
                 await UserRepository.update(user, session)
                 await session_commit(session)
                 msg = get_text(language, BotEntity.ADMIN, "credit_management_added_success").format(
@@ -100,7 +101,7 @@ class UserManagementService:
                     telegram_id=user.telegram_id,
                     currency_text=config.CURRENCY.get_localized_text())
             else:
-                user.consume_records += float(message.text)
+                user.consume_records += Decimal(message.text)
                 await UserRepository.update(user, session)
                 await session_commit(session)
                 msg = get_text(language, BotEntity.ADMIN, "credit_management_reduced_success").format(

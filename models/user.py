@@ -1,7 +1,8 @@
 from datetime import datetime
+from decimal import Decimal
 
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, DateTime, String, Boolean, Float, func, CheckConstraint, Enum
+from sqlalchemy import Column, Integer, DateTime, String, Boolean, Numeric, func, CheckConstraint, Enum
 
 from enums.language import Language
 from models.base import Base
@@ -13,8 +14,10 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     telegram_username = Column(String, unique=True, index=True)
     telegram_id = Column(Integer, nullable=False, unique=True, index=True)
-    top_up_amount = Column(Float, default=0.0)
-    consume_records = Column(Float, default=0.0)
+
+    top_up_amount = Column(Numeric(36, 12), default=0)
+    consume_records = Column(Numeric(36, 12), default=0)
+
     registered_at = Column(DateTime, default=func.now())
     can_receive_messages = Column(Boolean, default=True)
     language = Column(Enum(Language), default=Language.EN)
@@ -29,8 +32,8 @@ class UserDTO(BaseModel):
     id: int | None = None
     telegram_username: str | None = None
     telegram_id: int | None = None
-    top_up_amount: float | None = None
-    consume_records: float | None = None
+    top_up_amount: Decimal | None = None
+    consume_records: Decimal | None = None
     registered_at: datetime | None = None
     can_receive_messages: bool | None = None
     language: Language = Language.EN

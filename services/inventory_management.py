@@ -1,3 +1,4 @@
+from decimal import Decimal
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -147,7 +148,7 @@ class InventoryManagementService:
                 currency_text=config.CURRENCY.get_localized_text())
         else:
             try:
-                price = float(message.html_text)
+                price = Decimal(message.html_text)
                 assert (price > 0)
                 await state.update_data(price=message.html_text)
                 state_data = await state.get_data()
@@ -156,7 +157,7 @@ class InventoryManagementService:
                 items_list = [ItemDTO(category_id=category.id,
                                       subcategory_id=subcategory.id,
                                       description=state_data['description'],
-                                      price=float(state_data['price']),
+                                      price=Decimal(state_data['price']),
                                       private_data=private_data) for private_data in
                               state_data['private_data'].split('\n')]
                 await ItemRepository.add_many(items_list, session)

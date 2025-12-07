@@ -1,3 +1,4 @@
+from decimal import Decimal
 from json import load
 import logging
 from pathlib import Path
@@ -85,7 +86,7 @@ class ItemService:
                 items_list.append(ItemDTO(
                     category_id=category.id,
                     subcategory_id=subcategory.id,
-                    price=float(price),
+                    price=Decimal(price),
                     description=description,
                     private_data=private_data
                 ))

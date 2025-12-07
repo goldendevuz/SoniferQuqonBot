@@ -1,3 +1,4 @@
+from decimal import Decimal
 import logging
 import traceback
 from aiogram import types, Bot
@@ -134,14 +135,16 @@ class NotificationService:
     @staticmethod
     async def new_buy(buys: list[BuyDTO], user: UserDTO, session: AsyncSession | Session):
         user_button = await NotificationService.make_user_button(user.telegram_username)
-        cart_total_price = 0.0
+        cart_total_price = Decimal('0')
         cart_content = []
+
         for buy in buys:
             buy_item_dto_list = await BuyItemRepository.get_all_by_buy_id(buy.id, session)
             item_example = await ItemRepository.get_by_id(buy_item_dto_list[0].item_id, session)
             category = await CategoryRepository.get_by_id(item_example.category_id, session)
             subcategory = await SubcategoryRepository.get_by_id(item_example.subcategory_id, session)
-            cart_total_price += buy.total_price
+            
+            cart_total_price += Decimal(str(buy.total_price))
             if user.telegram_username:
                 cart_content.append(get_text(Language.EN, BotEntity.ADMIN, "notification_purchase_with_tgid").format(
                     username=user.telegram_username,

@@ -1,3 +1,5 @@
+from decimal import Decimal
+import logging
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InputMediaPhoto, InputMediaVideo, InputMediaAnimation, Message, \
     InlineKeyboardButton
@@ -162,20 +164,27 @@ class CartService:
         user = await UserRepository.get_by_tgid(callback.from_user.id, session)
         cart_items = await CartItemRepository.get_all_by_user_id(user.id, session)
         cart_content = []
-        cart_total_price = 0.0
+        cart_total_price = Decimal('0')
+
         for cart_item in cart_items:
-            item = await ItemRepository.get_single(category_id=cart_item.category_id,
-                                                   subcategory_id=cart_item.subcategory_id,
-                                                   session=session)
+            item = await ItemRepository.get_single(
+                category_id=cart_item.category_id,
+                subcategory_id=cart_item.subcategory_id,
+                session=session
+            )
             subcategory = await SubcategoryRepository.get_by_id(cart_item.subcategory_id, session)
-            line_item_total = item.price * cart_item.quantity
+            
+            line_item_total = Decimal(str(item.price)) * Decimal(cart_item.quantity)
+            
             cart_content.append(
                 get_text(language, BotEntity.USER, "cart_item_button").format(
                     subcategory_name=subcategory.name,
                     qty=cart_item.quantity,
                     total_price=line_item_total,
                     currency_sym=config.CURRENCY.get_localized_symbol()
-                ))
+                )
+            )
+            
             cart_total_price += line_item_total
         state_data = await state.get_data()
         coupon_id = state_data.get('coupon_id')
@@ -186,7 +195,7 @@ class CartService:
                 cart_total_price = ((100 - coupon_dto.value) / 100) * cart_total_price
             else:
                 cart_total_price = cart_total_price - coupon_dto.value
-                cart_total_price = max(cart_total_price, 1)
+                cart_total_price = max(cart_total_price, 0)
             discount_amount = cart_total_price_before_discount - cart_total_price
             message_text = get_text(
                 language,
@@ -225,13 +234,17 @@ class CartService:
         unpacked_cb = CartCallback.unpack(callback.data)
         user = await UserRepository.get_by_tgid(callback.from_user.id, session)
         cart_items = await CartItemRepository.get_all_by_user_id(user.id, session)
-        cart_total_price = 0.0
+        cart_total_price = Decimal('0')
         out_of_stock = []
+
         for cart_item in cart_items:
-            item = await ItemRepository.get_single(category_id=cart_item.category_id,
-                                                   subcategory_id=cart_item.subcategory_id,
-                                                   session=session)
-            cart_total_price += item.price * cart_item.quantity
+            item = await ItemRepository.get_single(
+                category_id=cart_item.category_id,
+                subcategory_id=cart_item.subcategory_id,
+                session=session
+            )
+            line_item_total = Decimal(str(item.price)) * Decimal(cart_item.quantity)
+            cart_total_price += line_item_total
             is_in_stock = await ItemRepository.get_available_qty(category_id=cart_item.category_id,
                                                                  subcategory_id=cart_item.subcategory_id,
                                                                  session=session) >= cart_item.quantity
@@ -251,9 +264,16 @@ class CartService:
                 cart_total_price = ((100 - coupon_dto.value) / 100) * cart_total_price
             else:
                 cart_total_price = cart_total_price - coupon_dto.value
-                cart_total_price = max(cart_total_price, 1)
+                cart_total_price = max(cart_total_price, 0)
             total_discount_amount = cart_total_price_before_discount - cart_total_price
         is_enough_money = (user.top_up_amount - user.consume_records) >= cart_total_price
+        logging.info(
+            "6: %s %s %s %s",
+            is_enough_money,
+            user.top_up_amount,
+            user.consume_records,
+            cart_total_price,
+        )
         kb_builder = InlineKeyboardBuilder()
         if unpacked_cb.confirmation and len(out_of_stock) == 0 and is_enough_money:
             buys = []

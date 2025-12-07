@@ -1,7 +1,8 @@
 from datetime import datetime
+from decimal import Decimal
 
 from pydantic import BaseModel
-from sqlalchemy import Column, Integer, Float, DateTime, Boolean, ForeignKey, func, CheckConstraint
+from sqlalchemy import Column, Integer, Numeric, DateTime, Boolean, ForeignKey, func, CheckConstraint
 from sqlalchemy.orm import relationship
 
 from enums.language import Language
@@ -14,8 +15,10 @@ class Buy(Base):
     id = Column(Integer, primary_key=True, unique=True)
     buyer_id = Column(Integer, ForeignKey('users.id'), nullable=True)
     buyer = relationship('User', backref='buys')
+
     quantity = Column(Integer, nullable=False)
-    total_price = Column(Float, nullable=False)
+    total_price = Column(Numeric(36, 12), nullable=False)
+
     buy_datetime = Column(DateTime, default=func.now())
     is_refunded = Column(Boolean, default=False)
     coupon_id = Column(Integer, ForeignKey('coupons.id'), nullable=True)
@@ -30,7 +33,7 @@ class BuyDTO(BaseModel):
     id: int | None = None
     buyer_id: int | None = None
     quantity: int | None = None
-    total_price: float | None = None
+    total_price: Decimal | None = None
     buy_datetime: datetime | None = None
     is_refunded: bool | None = None
     coupon_id: int | None = None
@@ -40,7 +43,7 @@ class RefundDTO(BaseModel):
     telegram_username: str | None = None
     telegram_id: int | None = None
     subcategory_name: str | None = None
-    total_price: float | None = None
+    total_price: Decimal | None = None
     quantity: int | None = None
     buy_id: int | None = None
     language: Language

@@ -1,3 +1,4 @@
+from decimal import Decimal
 import secrets
 import string
 
@@ -108,7 +109,7 @@ class CouponManagementService:
         number_of_uses = CouponNumberOfUses(state_data['number_of_uses'])
         kb_builder = InlineKeyboardBuilder()
         try:
-            coupon_value = float(message.text)
+            coupon_value = Decimal(message.text)
             if coupon_type == CouponType.PERCENTAGE:
                 assert 0 < coupon_value < 100
             await state.clear()
@@ -157,7 +158,7 @@ class CouponManagementService:
         safe_chars = string.ascii_uppercase.replace('I', '').replace('O', '') + \
                      string.digits.replace('0', '').replace('1', '')
         code = ''.join(secrets.choice(safe_chars) for _ in range(12))
-        coupon_value = float(state_data['coupon_value'])
+        coupon_value = Decimal(state_data['coupon_value'])
         coupon_dto = CouponDTO(
             code=code,
             type=callback_data.coupon_type,

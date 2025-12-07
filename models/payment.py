@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Boolean
 
@@ -22,8 +23,8 @@ class ProcessingPaymentDTO(BaseModel):
     id: int | None = None
     paymentType: PaymentType = PaymentType.DEPOSIT
     fiatCurrency: Currency
-    fiatAmount: float | None = None
-    cryptoAmount: float | None = None
+    fiatAmount: Decimal | None = None
+    cryptoAmount: Decimal | None = None
     userId: str | None = None
     cryptoCurrency: Cryptocurrency
     expireDatetime: int | None = None

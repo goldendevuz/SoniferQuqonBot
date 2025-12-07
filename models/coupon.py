@@ -1,4 +1,5 @@
 from datetime import datetime, timezone, timedelta
+from decimal import Decimal
 
 from pydantic import BaseModel
 from sqlalchemy import BigInteger, Column, DateTime, Enum, Boolean, String, Integer, Numeric
@@ -25,7 +26,7 @@ class CouponDTO(BaseModel):
     id: int | None = None
     code: str | None = None
     type: CouponType | None = None
-    value: float | None = None
+    value: Decimal | None = None
     create_datetime: datetime = datetime.now(tz=timezone.utc)
     expire_datetime: datetime = datetime.now(tz=timezone.utc) + timedelta(days=30)
     is_active: bool = True
