@@ -67,7 +67,7 @@ class BuyRepository:
                     .where(*conditions))
         stmt = select(func.count(Buy.id)).select_from(sub_stmt)
         not_refunded_buys = await session_execute(stmt, session)
-        not_refunded_buys = not_refunded_buys.scalar_one()
+        not_refunded_buys = not_refunded_buys.scalar_one_or_none()
         if not_refunded_buys % config.PAGE_ENTRIES == 0:
             return not_refunded_buys / config.PAGE_ENTRIES - 1
         else:
@@ -132,7 +132,7 @@ class BuyRepository:
     async def get_by_id(buy_id: int, session: Session | AsyncSession) -> BuyDTO:
         stmt = select(Buy).where(Buy.id == buy_id)
         buy = await session_execute(stmt, session)
-        return BuyDTO.model_validate(buy.scalar_one(), from_attributes=True)
+        return BuyDTO.model_validate(buy.scalar_one_or_none(), from_attributes=True)
 
     @staticmethod
     async def update(buy_dto: BuyDTO, session: Session | AsyncSession):
@@ -162,7 +162,7 @@ class BuyRepository:
             conditions.append(or_(*filter_conditions))
         stmt = select(func.count(Buy.id)).where(*conditions)
         not_refunded_buys = await session_execute(stmt, session)
-        not_refunded_buys = not_refunded_buys.scalar_one()
+        not_refunded_buys = not_refunded_buys.scalar_one_or_none()
         if not_refunded_buys % config.PAGE_ENTRIES == 0:
             return not_refunded_buys / config.PAGE_ENTRIES - 1
         else:

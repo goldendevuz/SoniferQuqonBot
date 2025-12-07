@@ -18,16 +18,17 @@ class ButtonMediaRepository:
                 is_exists = await session_execute(exists_stmt, session)
                 is_exists = is_exists.scalar_one_or_none()
                 if is_exists is None:
-                    button_obj = ButtonMedia(media_id=f"0{bot_media_id}", button=button)
-                    session.add(button_obj)
-            await session_commit(session)
+                    # DO NOT insert if using Django's DB
+                    # or only log that the button is missing
+                    print(f"[INFO] Button {button} missing in DB.")
+            # No commit needed since nothing is added
 
     @staticmethod
     async def get_by_button(button: KeyboardButton, session: AsyncSession) -> ButtonMediaDTO:
         stmt = (select(ButtonMedia)
                 .where(ButtonMedia.button == button))
         button_media = await session_execute(stmt, session)
-        return ButtonMediaDTO.model_validate(button_media.scalar_one(), from_attributes=True)
+        return ButtonMediaDTO.model_validate(button_media.scalar_one_or_none(), from_attributes=True)
 
     @staticmethod
     async def update(button_media_dto: ButtonMediaDTO, session: AsyncSession):

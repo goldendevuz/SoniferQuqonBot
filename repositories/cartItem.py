@@ -36,7 +36,7 @@ class CartItemRepository:
                     .where(Cart.user_id == user_id))
         stmt = select(func.count()).select_from(sub_stmt)
         max_page = await session_execute(stmt, session)
-        max_page = max_page.scalar_one()
+        max_page = max_page.scalar_one_or_none()
         if max_page % config.PAGE_ENTRIES == 0:
             return max_page / config.PAGE_ENTRIES - 1
         else:
@@ -58,7 +58,7 @@ class CartItemRepository:
     async def get_by_primary_key(cart_item_id: int, session: AsyncSession) -> CartItemDTO:
         stmt = select(CartItem).where(CartItem.id == cart_item_id)
         cart_item = await session_execute(stmt, session)
-        return CartItemDTO.model_validate(cart_item.scalar_one(), from_attributes=True)
+        return CartItemDTO.model_validate(cart_item.scalar_one_or_none(), from_attributes=True)
 
     @staticmethod
     async def update(cart_item_dto: CartItemDTO, session: AsyncSession):

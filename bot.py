@@ -10,7 +10,7 @@ import config
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from fastapi import FastAPI, Request, status, HTTPException
-from db import create_db_and_tables
+# from db import create_db_and_tables
 import uvicorn
 from fastapi.responses import JSONResponse
 from enums.cryptocurrency import Cryptocurrency
@@ -43,7 +43,7 @@ async def webhook(request: Request):
 
 @app.on_event("startup")
 async def on_startup():
-    await create_db_and_tables()
+    # await create_db_and_tables()
     await bot.set_webhook(
         url=config.WEBHOOK_URL,
         secret_token=config.WEBHOOK_SECRET_TOKEN
@@ -54,7 +54,7 @@ async def on_startup():
     me = await bot.get_me()
     photos = await bot.get_user_profile_photos(me.id)
     bot_photo_id = photos.photos[0][-1].file_id
-    with open("static/no_image.jpeg", "w") as f:
+    with open("static/no_image.txt", "w") as f:
         f.write(bot_photo_id)
     await ButtonMediaRepository.init_buttons_media()
     if config.CRYPTO_FORWARDING_MODE:

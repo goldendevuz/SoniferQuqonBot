@@ -1,6 +1,8 @@
 from decimal import Decimal
-from pydantic import BaseModel
-from sqlalchemy import Column, Integer, ForeignKey, DateTime, Boolean
+from uuid import UUID, uuid4
+import uuid
+from pydantic import BaseModel, Field
+from sqlalchemy import String, Column, Integer, ForeignKey, DateTime, Boolean
 
 import config
 from enums.cryptocurrency import Cryptocurrency
@@ -11,7 +13,7 @@ from models.base import Base
 
 class Payment(Base):
     __tablename__ = 'payments'
-    id = Column(Integer, primary_key=True, unique=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     processing_payment_id = Column(Integer, nullable=False)
     message_id = Column(Integer, nullable=False)
@@ -20,7 +22,7 @@ class Payment(Base):
 
 
 class ProcessingPaymentDTO(BaseModel):
-    id: int | None = None
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     paymentType: PaymentType = PaymentType.DEPOSIT
     fiatCurrency: Currency
     fiatAmount: Decimal | None = None
@@ -35,6 +37,10 @@ class ProcessingPaymentDTO(BaseModel):
     hash: str | None = None
     callbackUrl: str = f'{config.WEBHOOK_URL}cryptoprocessing/event'
     callbackSecret: str | None = config.KRYPTO_EXPRESS_API_SECRET if len(config.KRYPTO_EXPRESS_API_SECRET) > 0 else None
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class TablePaymentDTO(BaseModel):

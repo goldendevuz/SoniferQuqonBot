@@ -15,7 +15,7 @@ def get_sslipio_external_url():
 
 
 def get_bot_photo_id() -> str:
-    with open("static/no_image.jpeg", "r") as f:
+    with open("static/no_image.txt", "r") as f:
         return f.read()
 
 

@@ -29,7 +29,7 @@ class CouponRepository:
     async def get_max_page(session: AsyncSession) -> int:
         stmt = (select(func.count(Coupon.id)))
         coupons_qty = await session_execute(stmt, session)
-        coupons_qty = coupons_qty.scalar_one()
+        coupons_qty = coupons_qty.scalar_one_or_none()
         if coupons_qty % config.PAGE_ENTRIES == 0:
             return coupons_qty / config.PAGE_ENTRIES - 1
         else:
@@ -39,7 +39,7 @@ class CouponRepository:
     async def get_by_id(coupon_id: int, session: AsyncSession) -> CouponDTO:
         stmt = select(Coupon).where(Coupon.id == coupon_id)
         coupon = await session_execute(stmt, session)
-        return CouponDTO.model_validate(coupon.scalar_one(), from_attributes=True)
+        return CouponDTO.model_validate(coupon.scalar_one_or_none(), from_attributes=True)
 
     @staticmethod
     async def update(coupon_dto: CouponDTO, session: AsyncSession):

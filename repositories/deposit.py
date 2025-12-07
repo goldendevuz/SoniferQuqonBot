@@ -64,7 +64,7 @@ class DepositRepository:
                 .where(Deposit.is_withdrawn == False,
                        Deposit.network == cryptocurrency.value))
         count = await session_execute(stmt, session)
-        return count.scalar_one()
+        return count.scalar_one_or_none()
 
     @staticmethod
     async def set_withdrawn_by_network(cryptocurrency: Cryptocurrency, session: Session | AsyncSession):

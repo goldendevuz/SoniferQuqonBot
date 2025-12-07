@@ -1,8 +1,9 @@
 from datetime import datetime
 from decimal import Decimal
-
-from pydantic import BaseModel
-from sqlalchemy import Column, Integer, DateTime, String, Boolean, Numeric, func, CheckConstraint, Enum
+from uuid import UUID, uuid4
+import uuid
+from pydantic import BaseModel, Field
+from sqlalchemy import BigInteger, Column, Integer, DateTime, String, Boolean, Numeric, func, CheckConstraint, Enum
 
 from enums.language import Language
 from models.base import Base
@@ -11,9 +12,10 @@ from models.base import Base
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True)
-    telegram_username = Column(String, unique=True, index=True)
-    telegram_id = Column(Integer, nullable=False, unique=True, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+
+    telegram_username = Column(String(255), unique=True, index=True, nullable=True)
+    telegram_id = Column(BigInteger, unique=True, index=True, nullable=False)
 
     top_up_amount = Column(Numeric(36, 12), default=0)
     consume_records = Column(Numeric(36, 12), default=0)
@@ -29,7 +31,7 @@ class User(Base):
 
 
 class UserDTO(BaseModel):
-    id: int | None = None
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     telegram_username: str | None = None
     telegram_id: int | None = None
     top_up_amount: Decimal | None = None
@@ -37,3 +39,7 @@ class UserDTO(BaseModel):
     registered_at: datetime | None = None
     can_receive_messages: bool | None = None
     language: Language = Language.EN
+
+    model_config = {
+        "from_attributes": True
+    }

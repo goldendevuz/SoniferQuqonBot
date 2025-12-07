@@ -1,8 +1,9 @@
 from datetime import datetime
 from decimal import Decimal
-
-from pydantic import BaseModel
-from sqlalchemy import Column, Integer, Numeric, DateTime, Boolean, ForeignKey, func, CheckConstraint
+from uuid import UUID, uuid4
+import uuid
+from pydantic import BaseModel, Field
+from sqlalchemy import String, Column, Integer, Numeric, DateTime, Boolean, ForeignKey, func, CheckConstraint
 from sqlalchemy.orm import relationship
 
 from enums.language import Language
@@ -12,7 +13,7 @@ from models.base import Base
 class Buy(Base):
     __tablename__ = 'buys'
 
-    id = Column(Integer, primary_key=True, unique=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     buyer_id = Column(Integer, ForeignKey('users.id'), nullable=True)
     buyer = relationship('User', backref='buys')
 
@@ -30,13 +31,17 @@ class Buy(Base):
 
 
 class BuyDTO(BaseModel):
-    id: int | None = None
-    buyer_id: int | None = None
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    buyer_id: str | None = None
     quantity: int | None = None
     total_price: Decimal | None = None
     buy_datetime: datetime | None = None
     is_refunded: bool | None = None
-    coupon_id: int | None = None
+    coupon_id: str | None = None
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class RefundDTO(BaseModel):
@@ -45,5 +50,5 @@ class RefundDTO(BaseModel):
     subcategory_name: str | None = None
     total_price: Decimal | None = None
     quantity: int | None = None
-    buy_id: int | None = None
+    buy_id: str | None = None
     language: Language

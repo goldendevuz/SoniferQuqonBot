@@ -1,5 +1,7 @@
-from pydantic import BaseModel
-from sqlalchemy import Column, Integer, ForeignKey, CheckConstraint
+from uuid import UUID, uuid4
+import uuid
+from pydantic import BaseModel, Field
+from sqlalchemy import String, Column, Integer, ForeignKey, CheckConstraint
 
 from models.base import Base
 
@@ -7,7 +9,7 @@ from models.base import Base
 class CartItem(Base):
     __tablename__ = "cart_items"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     cart_id = Column(Integer, ForeignKey("carts.id"), nullable=False)
     category_id = Column(Integer, ForeignKey('categories.id'), nullable=False)
     subcategory_id = Column(Integer, ForeignKey('subcategories.id'), nullable=False)
@@ -19,8 +21,12 @@ class CartItem(Base):
 
 
 class CartItemDTO(BaseModel):
-    id: int | None = None
-    cart_id: int | None = None
-    category_id: int | None = None
-    subcategory_id: int | None = None
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    cart_id: str | None = None
+    category_id: str | None = None
+    subcategory_id: str | None = None
     quantity: int | None = None
+
+    model_config = {
+        "from_attributes": True
+    }

@@ -16,7 +16,7 @@ class PaymentRepository:
                 .join(Payment, Payment.user_id == User.id)
                 .where(Payment.processing_payment_id == payment_id))
         user = await session_execute(stmt, session)
-        return UserDTO.model_validate(user.scalar_one(), from_attributes=True)
+        return UserDTO.model_validate(user.scalar_one_or_none(), from_attributes=True)
 
     @staticmethod
     async def create(payment_id: int, user_id: int, message_id: int, session: AsyncSession | Session):
@@ -35,7 +35,7 @@ class PaymentRepository:
         stmt = (select(Payment)
                 .where(Payment.processing_payment_id == processing_payment_id))
         payment = await session_execute(stmt, session)
-        return TablePaymentDTO.model_validate(payment.scalar_one(), from_attributes=True)
+        return TablePaymentDTO.model_validate(payment.scalar_one_or_none(), from_attributes=True)
 
     @staticmethod
     async def get_unexpired_unpaid_payments(user_id: int, session: AsyncSession | Session):
@@ -45,7 +45,7 @@ class PaymentRepository:
                            Payment.is_paid == False))
         stmt = select(func.count()).select_from(sub_stmt)
         count = await session_execute(stmt, session)
-        return count.scalar_one()
+        return count.scalar_one_or_none()
 
     @staticmethod
     async def update(payment_dto: TablePaymentDTO, session: AsyncSession | Session):

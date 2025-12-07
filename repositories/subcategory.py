@@ -69,7 +69,7 @@ class SubcategoryRepository:
                     .distinct())
         stmt = select(func.count()).select_from(subquery)
         maximum_page = await session_execute(stmt, session)
-        maximum_page = maximum_page.scalar_one()
+        maximum_page = maximum_page.scalar_one_or_none()
         if maximum_page % config.PAGE_ENTRIES == 0:
             return maximum_page / config.PAGE_ENTRIES - 1
         else:
@@ -118,7 +118,7 @@ class SubcategoryRepository:
         ).alias('unique_categories')
         stmt = select(func.count()).select_from(unique_categories_subquery)
         max_page = await session_execute(stmt, session)
-        max_page = max_page.scalar_one()
+        max_page = max_page.scalar_one_or_none()
         if max_page % config.PAGE_ENTRIES == 0:
             return max_page / config.PAGE_ENTRIES - 1
         else:

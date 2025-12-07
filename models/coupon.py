@@ -1,7 +1,8 @@
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
-
-from pydantic import BaseModel
+from uuid import UUID, uuid4
+import uuid
+from pydantic import BaseModel, Field
 from sqlalchemy import BigInteger, Column, DateTime, Enum, Boolean, String, Integer, Numeric
 
 from enums.coupon_type import CouponType
@@ -11,7 +12,7 @@ from models.base import Base
 class Coupon(Base):
     __tablename__ = "coupons"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     code = Column(String(12), unique=True, nullable=False, index=True)
     type = Column(Enum(CouponType), nullable=False)
     value = Column(Numeric(10, 2), nullable=False)
@@ -23,7 +24,7 @@ class Coupon(Base):
 
 
 class CouponDTO(BaseModel):
-    id: int | None = None
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     code: str | None = None
     type: CouponType | None = None
     value: Decimal | None = None
@@ -32,3 +33,7 @@ class CouponDTO(BaseModel):
     is_active: bool = True
     usage_limit: int = 1
     usage_count: int = 0
+
+    model_config = {
+        "from_attributes": True
+    }

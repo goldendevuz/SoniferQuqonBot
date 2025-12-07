@@ -16,7 +16,7 @@ from aiogram.webhook.aiohttp_server import (
     TokenBasedRequestHandler,
     setup_application,
 )
-from db import create_db_and_tables
+# from db import create_db_and_tables
 from utils.custom_filters import AdminIdFilter
 
 main_router_multibot = Router()

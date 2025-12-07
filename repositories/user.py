@@ -49,7 +49,7 @@ class UserRepository:
     async def get_all_count(session: Session | AsyncSession) -> int:
         stmt = func.count(User.id)
         users_count = await session_execute(stmt, session)
-        return users_count.scalar_one()
+        return users_count.scalar_one_or_none()
 
     @staticmethod
     async def get_user_entity(user_entity: int | str, session: Session | AsyncSession) -> UserDTO | None:
@@ -75,7 +75,7 @@ class UserRepository:
         users = await session_execute(users_stmt, session)
         users = [UserDTO.model_validate(user, from_attributes=True) for user in users.scalars().all()]
         users_count = await session_execute(users_count_stmt, session)
-        return users, users_count.scalar_one()
+        return users, users_count.scalar_one_or_none()
 
     @staticmethod
     async def get_max_page_by_timedelta(timedelta: StatisticsTimeDelta, session: Session | AsyncSession) -> int:
@@ -85,7 +85,7 @@ class UserRepository:
         stmt = select(func.count(User.id)).where(User.registered_at >= time_interval,
                                                  User.telegram_username != None)
         users = await session_execute(stmt, session)
-        users = users.scalar_one()
+        users = users.scalar_one_or_none()
         if users % config.PAGE_ENTRIES == 0:
             return users / config.PAGE_ENTRIES - 1
         else:

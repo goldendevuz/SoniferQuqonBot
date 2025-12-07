@@ -58,7 +58,7 @@ class CategoryRepository:
         ).alias('unique_categories')
         stmt = select(func.count()).select_from(sub_stmt)
         max_page = await session_execute(stmt, session)
-        max_page = max_page.scalar_one()
+        max_page = max_page.scalar_one_or_none()
         if max_page % config.PAGE_ENTRIES == 0:
             return max_page / config.PAGE_ENTRIES - 1
         else:

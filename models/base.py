@@ -19,3 +19,7 @@ class Base(AsyncAttrs, DeclarativeBase):
             key: value for key, value in dto_dict.items()
             if key in model_columns
         })
+
+    model_config = {
+        "from_attributes": True
+    }
