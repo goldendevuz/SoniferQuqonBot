@@ -19,6 +19,10 @@ from repositories.button_media import ButtonMediaRepository
 from services.notification import NotificationService
 from services.wallet import WalletService
 
+from sqladmin import Admin, ModelView
+from db import engine
+from models import Buy, BuyItem, Cart, CartItem, Category, Coupon, Deposit, Item, Payment, Subcategory, User
+
 redis = Redis(host=config.REDIS_HOST, password=config.REDIS_PASSWORD)
 bot = Bot(config.TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(storage=RedisStorage(redis))
@@ -102,3 +106,52 @@ async def exception_handler(request: Request, exc: Exception):
 
 def main() -> None:
     uvicorn.run(app, host=config.WEBAPP_HOST, port=config.WEBAPP_PORT)
+
+admin = Admin(app, engine)
+
+# Har bir model uchun alohida ModelView yaratish
+class BuyAdmin(ModelView, model=Buy):
+    column_list = [c.name for c in Buy.__table__.columns]
+
+class BuyItemAdmin(ModelView, model=BuyItem):
+    column_list = [c.name for c in BuyItem.__table__.columns]
+
+class CartAdmin(ModelView, model=Cart):
+    column_list = [c.name for c in Cart.__table__.columns]
+
+class CartItemAdmin(ModelView, model=CartItem):
+    column_list = [c.name for c in CartItem.__table__.columns]
+
+class CategoryAdmin(ModelView, model=Category):
+    column_list = [c.name for c in Category.__table__.columns]
+
+class CouponAdmin(ModelView, model=Coupon):
+    column_list = [c.name for c in Coupon.__table__.columns]
+
+class DepositAdmin(ModelView, model=Deposit):
+    column_list = [c.name for c in Deposit.__table__.columns]
+
+class ItemAdmin(ModelView, model=Item):
+    column_list = [c.name for c in Item.__table__.columns]
+
+class PaymentAdmin(ModelView, model=Payment):
+    column_list = [c.name for c in Payment.__table__.columns]
+
+class SubcategoryAdmin(ModelView, model=Subcategory):
+    column_list = [c.name for c in Subcategory.__table__.columns]
+
+class UserAdmin(ModelView, model=User):
+    column_list = [c.name for c in User.__table__.columns]
+
+# Admin panelga qo‘shish
+admin.add_view(BuyAdmin)
+admin.add_view(BuyItemAdmin)
+admin.add_view(CartAdmin)
+admin.add_view(CartItemAdmin)
+admin.add_view(CategoryAdmin)
+admin.add_view(CouponAdmin)
+admin.add_view(DepositAdmin)
+admin.add_view(ItemAdmin)
+admin.add_view(PaymentAdmin)
+admin.add_view(SubcategoryAdmin)
+admin.add_view(UserAdmin)
