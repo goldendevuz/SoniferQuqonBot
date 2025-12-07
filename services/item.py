@@ -1,4 +1,5 @@
 from json import load
+import logging
 from pathlib import Path
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -56,8 +57,11 @@ class ItemService:
         with open(path_to_file, 'r', encoding='utf-8') as file:
             items = load(file)
             items_list = []
+            logging.info("Items list: %s", items_list)
+
             for item in items:
                 category = await CategoryRepository.get_or_create(item['category'], session)
+                logging.info("Category: %s", category)
                 subcategory = await SubcategoryRepository.get_or_create(item['subcategory'], session)
                 item.pop('category')
                 item.pop('subcategory')
@@ -66,6 +70,7 @@ class ItemService:
                     subcategory_id=subcategory.id,
                     **item
                 ))
+            logging.info("Items list: %s", items_list)
             return items_list
 
     @staticmethod
@@ -95,10 +100,14 @@ class ItemService:
             items = []
             if add_type == AddType.JSON:
                 items += await ItemService.parse_items_json(path_to_file, session)
+                logging.info("1: %s", items)
             else:
                 items += await ItemService.parse_items_txt(path_to_file, session)
+                logging.info("2: %s", items)
             await ItemRepository.add_many(items, session)
+            logging.info("3: %s", items)
             await session_commit(session)
+            logging.info("4: %s", items)
             return get_text(language, BotEntity.ADMIN, "add_items_success").format(adding_result=len(items))
         except Exception as e:
             return get_text(language, BotEntity.ADMIN, "add_items_err").format(adding_result=e)

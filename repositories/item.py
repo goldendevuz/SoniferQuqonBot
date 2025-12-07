@@ -1,3 +1,4 @@
+import logging
 from sqlalchemy import select, func, update, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
@@ -89,7 +90,10 @@ class ItemRepository:
 
     @staticmethod
     async def add_many(items: list[ItemDTO], session: AsyncSession):
-        items = [Item(**item.model_dump()) for item in items]
+        items = [
+            Item(**item.model_dump(exclude_none=True)) 
+            for item in items
+        ]
         session.add_all(items)
 
     @staticmethod

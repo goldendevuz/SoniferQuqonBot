@@ -1,3 +1,4 @@
+import logging
 import math
 
 from sqlalchemy import select, func, update, or_, and_
@@ -101,10 +102,13 @@ class CategoryRepository:
     async def get_or_create(category_name: str, session: Session | AsyncSession):
         stmt = select(Category).where(Category.name == category_name)
         category = await session_execute(stmt, session)
+        logging.info("Category: %s", category)
         category = category.scalar()
+        logging.info("Category: %s", category)
         if category is None:
             bot_photo_id = get_bot_photo_id()
             new_category_obj = Category(name=category_name, media_id=f"0{bot_photo_id}")
+            logging.info("New Category: %s", new_category_obj)
             session.add(new_category_obj)
             await session_flush(session)
             return new_category_obj
