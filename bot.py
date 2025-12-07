@@ -54,8 +54,8 @@ async def on_startup():
     me = await bot.get_me()
     photos = await bot.get_user_profile_photos(me.id)
     bot_photo_id = photos.photos[0][-1].file_id
-    with open("static/no_image.jpeg", "w") as f:
-        f.write(bot_photo_id)
+    # with open("./static/no_image.jpeg", "w") as f:
+    #     f.write(bot_photo_id)
     await ButtonMediaRepository.init_buttons_media()
     if config.CRYPTO_FORWARDING_MODE:
         for cryptocurrency in Cryptocurrency:

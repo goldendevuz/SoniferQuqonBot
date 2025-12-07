@@ -11,6 +11,7 @@ from aiogram.filters import Command, CommandObject
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from aiogram.utils.token import TokenValidationError, validate_token
+from aiogram.client.default import DefaultBotProperties
 from aiogram.webhook.aiohttp_server import (
     SimpleRequestHandler,
     TokenBasedRequestHandler,
@@ -65,7 +66,7 @@ async def on_startup(dispatcher: Dispatcher, bot: Bot):
 def main(main_router):
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     session = AiohttpSession()
-    bot_settings = {"session": session, "parse_mode": ParseMode.HTML}
+    bot_settings = {"session": session}
     bot = Bot(token=MAIN_BOT_TOKEN, **bot_settings)
     storage = MemoryStorage()
 
